@@ -1,18 +1,38 @@
-import PostMessage from "../models/postMessage.js";
+import express from "express";
+
+import Post from "../models/Post.js";
+
+const router = express.Router();
 
 export const getPosts = async (req, res) => {
   try {
-    const postMessages = await PostMesage.find();
+    const post = await Post.find();
 
-    res.status(200).json(postMessages);
+    res.status(200).json(post);
   } catch (error) {
     res.status(404).json({message: error.message});
   }
 };
 
 export const createPost = async (req, res) => {
-  const post = req.body;
-  const newPost = new PostMessage(post);
+  const {
+    name,
+    interestRate,
+    maxLoan,
+    minLoan,
+    minDownPayment,
+    loanTerm,
+    creator,
+  } = req.body;
+  const newPost = new Post({
+    name,
+    interestRate,
+    maxLoan,
+    minLoan,
+    minDownPayment,
+    loanTerm,
+    creator,
+  });
 
   try {
     await newPost.save();
@@ -22,3 +42,5 @@ export const createPost = async (req, res) => {
     res.status(409).json({message: error.message});
   }
 };
+
+export default router;

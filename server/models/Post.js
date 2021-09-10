@@ -10,7 +10,7 @@ const PostSchema = mongoose.Schema({
   loanTerm: Number,
   createdAt: {
     type: Date,
-    default: new Date(),
+    default: Date.now(),
   },
 });
 

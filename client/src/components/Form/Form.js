@@ -1,11 +1,11 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {TextField, Button, Typography, Paper} from "@material-ui/core";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 
 import useStyles from "./styles.js";
-import {createPost} from "../../actions/posts";
+import {createPost, updatePost} from "../../actions/posts";
 
-const Form = () => {
+const Form = ({currentId, setCurrentId}) => {
   const classes = useStyles();
   const [postData, setPostData] = useState({
     creator: "",
@@ -16,14 +16,41 @@ const Form = () => {
     minDownPayment: "",
     loanTerm: "",
   });
+  const post = useSelector((state) =>
+    currentId
+      ? state.posts.find((postMessage) => postMessage._id === currentId)
+      : null
+  );
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (post) setPostData(post);
+  }, [post]);
+
+  const clear = () => {
+    setCurrentId(0);
+    setPostData({
+      creator: "",
+      name: "",
+      interestRate: "",
+      maxLoan: "",
+      minLoan: "",
+      minDownPayment: "",
+      loanTerm: "",
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await dispatch(createPost(postData));
+    if (currentId === 0) {
+      dispatch(createPost(postData));
+      clear();
+    } else {
+      dispatch(updatePost(currentId, postData));
+      clear();
+    }
   };
-  const clear = () => {};
 
   return (
     <Paper className={classes.paper}>
@@ -33,7 +60,9 @@ const Form = () => {
         noValidate
         onSubmit={handleSubmit}
       >
-        <Typography variant='h6'>Creating a Bank</Typography>
+        <Typography variant='h6'>
+          {currentId ? `Editing "${post.name}"` : "Creating a Bank"}
+        </Typography>
 
         <TextField
           name='creator'
@@ -117,15 +146,6 @@ const Form = () => {
           fullWidth
         >
           Submit
-        </Button>
-        <Button
-          variant='contained'
-          color='default'
-          size='small'
-          onClick={clear}
-          fullWidth
-        >
-          Clear
         </Button>
       </form>
     </Paper>
